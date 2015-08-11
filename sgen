@@ -1,0 +1,3 @@
+# sgen - ScalaTion Gen script - must export SCALATION_CLASSES
+echo // scala -cp $SCALATION_CLASSES $1 > src/main/scala/scalation/graphalytics/$2
+scala -cp $SCALATION_CLASSES $1 > src/main/scala/scalation/graphalytics/$2
