@@ -41,6 +41,8 @@ class SignalController (name: String, director: Model, gate: Array [TrafficSigna
     
     var stateCounter = 0   // a counter that will iterate through the states
 
+    println ("hello")
+
     var stopped = false
 
 //    for (g <- gate) subpart += g

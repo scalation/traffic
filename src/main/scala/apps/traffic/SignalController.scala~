@@ -37,7 +37,7 @@ class SignalController (name: String, director: Model, gate: Array [TrafficSigna
     // the GateController is not created by a source, so it must schedule itself to start.
     schedule (0.0)
     initStats (name)
-    setAt (at)
+    at_= (at)
     
     var stateCounter = 0   // a counter that will iterate through the states
 
