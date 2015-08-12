@@ -20,9 +20,14 @@ object TrafficTest extends App
         val wq  =     WaitQueue ("wq", (600, 300))
         val snk = new Sink      ("sink", (900.0, 300.0))
         val rd1 = new Transport ("road1", src, wq, moveRV)
-        val rd2 = new Transport ("road2", wq, snk, moveRV)
 
-        addComponent (src, snk, wq, rd1, rd2)
+        val sig = new TrafficSignal ("signal", wq, 1000, Array (700.0, 300.0, 20.0, 20.0), 5000.0)
+
+        val rd2 = new Transport ("road2", sig, snk, moveRV)
+
+        val sc = new SignalController ("control", this, Array (sig), Array (Array ("red"), Array ("green")), Array (5000.0, 5000.0))
+
+        addComponent (src, snk, wq, rd1, sig, rd2, sc)
 
         case class Car () extends SimActor ("c", this)
         {

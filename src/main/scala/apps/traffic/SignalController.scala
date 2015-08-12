@@ -58,7 +58,8 @@ class SignalController (name: String, director: Model, gate: Array [TrafficSigna
     def act ()
     {
         for (j <- 0 until 1000) {
-//            println ("j = " + j)
+            println ("j = " + j)
+            println ("state counter = " + stateCounter)
             val curState = state(stateCounter)
             for (i <- 0 until gate.length) {
                 val g = gate(i)
