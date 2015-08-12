@@ -16,17 +16,21 @@ object TrafficTest extends App
     class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, ani: Boolean = false)
           extends Model (name, animating = ani)
     {
-        val src = new Source ("source", this, Car, 0, nArrivals, iArrivalRV, (200.0, 300.0))
-        val snk = new Sink   ("sink", (500.0, 300.0))
-        val rd  = new Transport ("road", src, snk, moveRV)
+        val src = new Source    ("source", this, Car, 0, nArrivals, iArrivalRV, (400.0, 300.0))
+        val wq  =     WaitQueue ("wq", (600, 300))
+        val snk = new Sink      ("sink", (900.0, 300.0))
+        val rd1 = new Transport ("road1", src, wq, moveRV)
+        val rd2 = new Transport ("road2", wq, snk, moveRV)
 
-        addComponent (src, snk, rd)
+        addComponent (src, snk, wq, rd1, rd2)
 
         case class Car () extends SimActor ("c", this)
         {
             def act ()
             {
-                rd. move  ()
+                rd1. move ()
+                wq.noWait ()
+                rd2. move ()
                 snk.leave ()
             }
         }
