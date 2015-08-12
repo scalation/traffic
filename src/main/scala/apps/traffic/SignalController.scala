@@ -6,10 +6,11 @@
  *  @see      LICENSE (MIT style license file).
  */
 
-package scalation.process
+package apps.traffic
 
 import collection.mutable.ListBuffer
 
+import scalation.process._
 import scalation.animation.CommandType._
 import scalation.random._
 import scalation.scala2d.{Ellipse, Rectangle}

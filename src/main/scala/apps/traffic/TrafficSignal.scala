@@ -5,7 +5,7 @@
  *  @see     LICENSE (MIT style license file).
  */
 
-package scalation.process
+package apps.traffic
 
 import collection.mutable.ListBuffer
 import java.io.PrintWriter
