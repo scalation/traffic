@@ -5,7 +5,7 @@
  *  @see     LICENSE (MIT style license file).
  */
 
-package scalation.process
+package apps.traffic
 
 import collection.mutable.ListBuffer
 import java.io.PrintWriter
@@ -72,7 +72,7 @@ class TrafficSignal (name: String, line: WaitQueue, units: Int,
      */
     def display ()
     {
-        director.animate (this, CreateNode, gateColor, Ellipse (), at)
+        director.animate (this, CreateNode, signalColor, Ellipse (), at)
         director.animate (line, CreateNode, cyan, Rectangle (), line.at)
     } // display
    
