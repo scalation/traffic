@@ -86,6 +86,7 @@ class TrafficSignal (name: String, line: WaitQueue, units: Int,
         releaseCount += 1
 
         var n = (durat / 3000.0).toInt
+        println ("duration = " + durat)
         for (i <- 0 until n if ! line.isEmpty) {
             val waitingActor = line.dequeue ()
             trace (this, " / " + name + " releases", waitingActor, director.clock)            

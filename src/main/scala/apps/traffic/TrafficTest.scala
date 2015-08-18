@@ -31,9 +31,9 @@ object TrafficTest extends App
         val j31 = new Junction ("junc31", this, Sharp (0), Array (srcx + 9 *  dx, srcy, 20.0, 20.0))
         val j32 = new Junction ("junc32", this, Sharp (0), Array (srcx + 10 * dx, srcy, 20.0, 20.0))
 
-        val sig1 = new TrafficSignal ("signal1", wq1, 1000, Array (srcx + 4 * dx, srcy, 20.0, 20.0), 5000.0)       
+        val sig1 = new TrafficSignal ("signal1", wq1, 1000, Array (srcx + 4 * dx, srcy, 20.0, 20.0), 1000.0)       
 
-        val sig2 = new TrafficSignal ("signal2", wq2, 1000, Array (srcx + 8 * dx, srcy, 20.0, 20.0), 5000.0)
+        val sig2 = new TrafficSignal ("signal2", wq2, 1000, Array (srcx + 8 * dx, srcy, 20.0, 20.0), 1000.0)
 
         val snk  = new Sink      ("sink", (srcx.toDouble + 11 * dx, srcy.toDouble))
 
@@ -47,7 +47,7 @@ object TrafficTest extends App
         val rd32 = new Transport ("road32", j31,  j32, moveRV)
         val rd33 = new Transport ("road33", j32,  snk, moveRV)
 
-        val sc = new SignalController ("control", this, Array (sig1, sig2), Array (Array ("red", "green"), Array ("green", "red")), Array (5000.0, 5000.0))
+        val sc = new SignalController ("control", this, Array (sig1, sig2), Array (Array ("red", "green"), Array ("green", "red")), Array (1000.0, 1000.0))
 
         addComponent (src, snk, wq1, wq2, j11, j12, j21, j22, j31, j32, sig1, rd11, rd12, rd13, sig2, rd21, rd22, rd23, rd31, rd32, rd33, sc)
 
@@ -60,13 +60,13 @@ object TrafficTest extends App
                 rd12.move ()
                 j12.jump  ()
                 rd13.move ()
-                if (sig1.shut) wq1.waitIn () else wq1.noWait ()
+                if (sig1.shut || wq1.size > 0) wq1.waitIn () else wq1.noWait ()
                 rd21.move ()
                 j21.jump  ()
                 rd22.move ()
                 j22.jump  ()
                 rd23.move ()
-                if (sig2.shut) wq2.waitIn () else wq2.noWait ()
+                if (sig2.shut || wq2.size > 0) wq2.waitIn () else wq2.noWait ()
                 rd31.move ()
                 j31.jump  ()
                 rd32.move ()
