@@ -130,7 +130,7 @@ class DgAnimator (_title: String, fgColor: Color = black, bgColor: Color = white
      */
     private def invokeCommand (c: AnimateCommand)
     {
-        println ("DgAnimator.invokeCommand: " + c)
+//        println ("DgAnimator.invokeCommand: " + c)
 
         c.action  match {
         case CreateNode =>

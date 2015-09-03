@@ -42,8 +42,6 @@ class SignalController (name: String, director: Model, gate: Array [TrafficSigna
     
     var stateCounter = 0   // a counter that will iterate through the states
 
-    println ("hello")
-
     var stopped = false
 
 //    for (g <- gate) subpart += g
@@ -58,8 +56,8 @@ class SignalController (name: String, director: Model, gate: Array [TrafficSigna
     def act ()
     {
         for (j <- 0 until 1000) {
-            println ("j = " + j)
-            println ("state counter = " + stateCounter)
+//            println ("j = " + j)
+//            println ("state counter = " + stateCounter)
             val curState = state(stateCounter)
             for (i <- 0 until gate.length) {
                 val g = gate(i)

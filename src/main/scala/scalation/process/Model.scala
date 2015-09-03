@@ -52,7 +52,7 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
 
     /** Debug flag
      */
-    private val DEBUG = true
+    private val DEBUG = false
 
     /** The time at which the simulation is to begin
      */
