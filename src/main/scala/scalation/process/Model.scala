@@ -248,7 +248,7 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
         } // for
 
         cleanup ()
-        println ("statV = " + statV)
+//        println ("statV = " + statV)
         println ("coroutine counts = " + counts)
         trace (this, "terminates model", null, _clock)
         finished.release ()                                  // signal via semaphore that simulation is finished
