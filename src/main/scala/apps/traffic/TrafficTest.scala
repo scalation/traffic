@@ -2,32 +2,67 @@
 package apps.traffic
 
 import scalation.linalgebra._
+import scalation.metamodel.QuadraticFit
+import scalation.minima._
 import scalation.random._
 import scalation.process._
 import scalation.util.Monitor._
 
 object TrafficTest extends App
 {
+    val x0 = VectorD (20000.0, 20000.0, 5000.0)
+    val xs = VectorD (5000.0,  5000.0,  1000.0)
 
-    for (i <- 10 until 30) {
-       println ("Time: " + (1000.0 * i))
-       f(VectorD (1000.0 * i, 1000.0 * i))
-       System.err.println (i)
+    val qf = new QuadraticFit (f)
+
+    qf.formGrid (x0, xs)
+
+    val (xx, yy) = qf.response ()
+    qf.fit (xx, yy)
+
+    def fp (x: VectorD): Double = qf.qFormsEval (x)
+
+    val opt = new QuasiNewton (fp, g)
+
+    val sol = opt.solve (x0)
+
+    println ("sol = " + sol)    
+
+    def g (x: VectorD): Double = 
+    {
+        var sum = 0.0
+         if (x(0) < 5000.0)  sum += (x(0) - 5000.0)  * (x(0) - 5000.0)
+         if (x(0) > 50000.0) sum += (x(0) - 50000.0) * (x(0) - 50000.0)
+         if (x(1) < 5000.0)  sum += (x(1) - 5000.0)  * (x(1) - 5000.0)
+         if (x(1) > 50000.0) sum += (x(1) - 50000.0) * (x(1) - 50000.0)
+         if (x(2) < 0.0)     sum += (x(2) * x(2))
+         if (x(2) > 30000.0) sum += (x(2) - 30000.0) * (x(2) - 30000.0)
+        sum
     }
+
+//    f (VectorD (20000.0, 20000.0, 5000.0))
 
     def f (x: VectorD): Double =
     {
-        val tm = new TrafficModel ("tm", 100, Sharp (1000), Sharp (2000), x, false)
+        val tm = new TrafficModel ("tm", 30, Sharp (1000), Sharp (2000), x, false)
 
 //        Coroutine.startup ()
         tm.simulate ()
         tm.complete ()
 //        Coroutine.shutdown ()
-        0.0
+	val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+        val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+
+//        println ("sv    = " + sv)
+//        println ("sinkN = " + sinkN)
+        
+        println ("x = " + x)
+
+        sv.reduceLeft (_+_)
     }
 
     class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, times: VectorD, ani: Boolean = false)
-          extends Model (name, animating = ani)
+          extends Model (name, animating = ani, aniRatio = 1.0 / 2.0)
     {
         traceOff ()
 
@@ -37,7 +72,7 @@ object TrafficTest extends App
         val srcy  = 300
         val srcx2 = srcx + 4 * dx
         val srcy2 = 50
-        val srcx3 = srcx + 8 * dx
+        val srcx3 = srcx + 9 * dx
         val srcy3 = srcy2
 
         val nameOn = false
@@ -90,11 +125,11 @@ object TrafficTest extends App
 
         val sig1 = new TrafficSignal ("sg1", wq1, 1000, Array (srcx + 5 * dx, srcy, 20.0, 20.0), times(0))       
 
-        val sig2 = new TrafficSignal ("sg2", wq2, 1000, Array (srcx + 10 * dx, srcy, 20.0, 20.0), times(1))
+        val sig2 = new TrafficSignal ("sg2", wq2, 1000, Array (srcx + 10 * dx, srcy, 20.0, 20.0), times(0))
 
-        val sig3 = new TrafficSignal ("sg3", wq3, 1000, Array (srcx2, srcy2 + 6 * dy, 20.0, 20.0), times(0))    
+        val sig3 = new TrafficSignal ("sg3", wq3, 1000, Array (srcx2, srcy2 + 6 * dy, 20.0, 20.0), times(1))    
 
-        val sig4 = new TrafficSignal ("sg4", wq4, 1000, Array (srcx3, srcy3 + 6 * dy, 20.0, 20.0), times(0))   
+        val sig4 = new TrafficSignal ("sg4", wq4, 1000, Array (srcx3, srcy3 + 6 * dy, 20.0, 20.0), times(1))   
 
 //        val sig4 = new TrafficSignal ("signal4", wq4, 1000, Array (srcx2, srcy2 + 12 * dy, 20.0, 20.0), time2)
 
@@ -128,11 +163,18 @@ object TrafficTest extends App
 //        val rdS32 = new Transport ("roadS32", jS31,  jS32, moveRV)
 //        val rdS33 = new Transport ("roadS33", jS32,  snk2, moveRV)
 
-
+        val state1 = times(2)
+        val state2 = times(0) - times(2)
+        val state3 = times(2) 
+        val state4 = times(1) - times(2)
 
 
         val sc = new SignalController ("control", this, Array (sig1, sig2, sig3, sig4), 
-                                                        Array (Array ("red", "green", "green", "red"), Array ("green", "red", "red", "green")), Array (times(0), times(1)))
+                                                        Array (Array ("green", "red", "red", "green"), 
+                                                               Array ("green", "green", "red", "red"),
+                                                               Array ("red", "green", "green", "red"),
+                                                               Array ("red", "red", "green", "green")), 
+                                                        Array (state1, state2, state3, state4))
 
         addComponent (src, snk, src2, snk2, src3, snk3, wq1,   wq2,   wq3, wq4,   
                                 jE11,  jE12,  jE21,  jE22,  jE31,  jE32, 

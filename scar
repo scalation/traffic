@@ -1,4 +1,4 @@
 # scar - ScalaTion Run script - must export SCALATION_CLASSES
-echo // scala -cp $SCALATION_CLASSES $1
-scala -cp $SCALATION_CLASSES $1
+echo // scala -cp target/scala-2.12.0-M1/classes $1
+scala -cp target/scala-2.12.0-M1/classes $1
 

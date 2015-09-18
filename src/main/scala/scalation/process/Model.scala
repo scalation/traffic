@@ -46,6 +46,8 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
      */
     val statV = HashMap [String, StatVector] ()
 
+    val statN = HashMap [String, StatVector] ()
+
     /** The stop time for the model
      */
     var stopTime = MAX_VALUE
@@ -138,10 +140,14 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
     def resetStats (rep: Int)
     {
         if (rep == 1) {
-            for (stat <- getStatistics) statV += stat.name -> new StatVector (reps)
+            for (stat <- getStatistics) {
+                statV += stat.name -> new StatVector (reps)
+                statN += stat.name -> new StatVector (reps)
+            }
         } // for
         for (stat <- getStatistics) {
             statV (stat.name)(rep - 1) = stat.mean
+            statN (stat.name)(rep - 1) = stat.num
             stat.reset ()
         } // for
     } // resetStats
@@ -347,7 +353,7 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
      */
     private def fini (rep: Int)
     {
-        report                      // report in terminal
+//        report                      // report in terminal
         if (animating) {
             reportf                                      // report in new window
             if (rep == 1) dgAni.animate (0, 100000)      // only animate first rep
