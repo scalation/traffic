@@ -102,8 +102,8 @@ class IntegerLocalSearch (f: VectorI => Double,
             println ("+ k = " + k + ", step = " + step + ", x_f = " + x_f)
             val y_f = minNeighbor (x_f, 0, step)
             if (x_f._2 <= y_f._2) {              // no improvement
-               if (step == 1) return x_f         // => return solution when step is 1
-               else step -= 1                    // => decrease step size otherwise
+               if (step == 1000) return x_f         // => return solution when step is 1
+               else step -= 1000                    // => decrease step size otherwise
             } // if
             x_f = y_f                            // move to improved point
         } // for

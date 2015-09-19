@@ -129,7 +129,7 @@ class QuasiNewton (f: FunctionV2S, g: FunctionV2S = null,
      */
     def lineSearch (x: VectorD, dir: VectorD, step: Double = STEP): Double =
     {
-        def f_1D (z: Double): Double = fg(x + dir * z)    // create a 1D function
+        def f_1D (z: Double): Double = fg(x + dir * z)    // create a 1D function        
         val ls = if (exactLS) new GoldenSectionLS (f_1D)  // Golden Section Line Search
                  else new WolfeLS (f_1D)                  // Wolfe line search ((c1 = .0001, c2 = .9)
         ls.search (step)                                  // perform a Line Search

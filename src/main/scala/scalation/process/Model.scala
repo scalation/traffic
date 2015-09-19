@@ -114,8 +114,8 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
      */
     def reset ()
     {
-        println ("--------------------------------------------------------------------------")
-        println ("Model.reset in progress")
+//        println ("--------------------------------------------------------------------------")
+//        println ("Model.reset in progress")
 
         // reset the agenda - activation priority queue
         while (! agenda.isEmpty) agenda.dequeue ()                   // clean out actors from agenda
@@ -179,13 +179,13 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
      */
     def cleanup ()
     {
-        println ("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        println ("Model.cleanup in progress")
+//        println ("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+//        println ("Model.cleanup in progress")
 
         while (! agenda.isEmpty) {                           // cleanup actors left on agenda
             val a = agenda.dequeue ()
             if (a != this) {
-                println ("cleanup: terminate " + a)
+//                println ("cleanup: terminate " + a)
                 a.interrupt ()                               // terminate all actors, except director
             } // if
         } // while
@@ -255,7 +255,7 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
 
         cleanup ()
 //        println ("statV = " + statV)
-        println ("coroutine counts = " + counts)
+//        println ("coroutine counts = " + counts)
         trace (this, "terminates model", null, _clock)
         finished.release ()                                  // signal via semaphore that simulation is finished
         yyield (null, true)                                  // yield and terminate the director

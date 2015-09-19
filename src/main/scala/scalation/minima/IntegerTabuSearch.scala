@@ -43,7 +43,7 @@ class IntegerTabuSearch (f: VectorI => Double,
 
     /** Maximum number of iterations allowed in total (4 maxStep^2)
      */
-    private val maxIter = 4 * maxStep * maxStep     // maxStep = 5 => MaxIter = 100
+    private val maxIter = 4 * maxStep / 1000 * maxStep / 1000    // maxStep = 5 => MaxIter = 100
 
     /** A set that keeps track of already visited points in the search space
      */
@@ -113,8 +113,8 @@ class IntegerTabuSearch (f: VectorI => Double,
             println ("+ k = " + k + ", step = " + step + ", x_f = " + x_f)
             val y_f = minNeighbor (x_f, 0, step)
             if (x_f._2 <= y_f._2) {              // no improvement
-               if (step == 1) return x_f         // => return solution when step is 1
-               else step -= 1                    // => decrease step size otherwise
+               if (step == 1000) return x_f         // => return solution when step is 1
+               else step -= 1000                    // => decrease step size otherwise
             } // if
             x_f = y_f                            // move to improved point
         } // for

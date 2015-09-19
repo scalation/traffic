@@ -10,10 +10,12 @@ import scalation.util.Monitor._
 
 object TrafficTest extends App
 {
-    val x0 = VectorD (20000.0, 20000.0, 5000.0)
-    val xs = VectorD (5000.0,  5000.0,  1000.0)
+    var count = 0
 
-    val qf = new QuadraticFit (f)
+    val x0 = VectorD (30000.0, 30000.0, 5000.0)
+    val xs = VectorD (2000.0,  2000.0,  1000.0)
+
+    val qf = new QuadraticFit (f, 3, 7)
 
     qf.formGrid (x0, xs)
 
@@ -22,12 +24,32 @@ object TrafficTest extends App
 
     def fp (x: VectorD): Double = qf.qFormsEval (x)
 
+    def fi (x: VectorI): Double = f (x.toDouble)
+
+    def gi (x: VectorI): Double = g (x.toDouble)
+
     val opt = new QuasiNewton (fp, g)
+//    val opt = new ConjGradient (fp, g)
+//    val opt = new IntegerLocalSearch (fi, gi, 5000)
+//    val opt = new IntegerNLP (f, 3, g)
+//    val opt = new IntegerTabuSearch (fi, gi, 5000)
 
     val sol = opt.solve (x0)
 
     println ("sol = " + sol)    
 
+/*  
+    var count = 0
+    for (i <- 20000 to 30000 by 2000) {
+        for (j <- (i - 4000) to (i + 4000) by 2000) {
+            for (k <- 10000 to 20000 by 5000) {
+                System.err.println ("i = " + i + ", j = " + j + ", k = " + k + "\t" + count)
+                count += 1
+                println ("i = " + i + ", j = " + j + ", k = " + k + "\t" + fi (VectorI (i, j, k)))
+            }
+        }
+    }
+*/
     def g (x: VectorD): Double = 
     {
         var sum = 0.0
@@ -44,21 +66,27 @@ object TrafficTest extends App
 
     def f (x: VectorD): Double =
     {
-        val tm = new TrafficModel ("tm", 30, Sharp (1000), Sharp (2000), x, false)
+        var res = 0.0
+        if (x(0) < 10.0 || x(1) < 10.0 || x(2) < 0.0) res = 1e9 
+        else {
+            count += 1
+            val tm = new TrafficModel ("tm", 30, Sharp (1000), Sharp (2000), x, false)
 
-//        Coroutine.startup ()
-        tm.simulate ()
-        tm.complete ()
-//        Coroutine.shutdown ()
-	val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
-        val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+//            Coroutine.startup ()
+//            println ("before")
+            tm.simulate ()
+            tm.complete ()
+//           println ("after")
+//            Coroutine.shutdown ()
+	    val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+            val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
 
-//        println ("sv    = " + sv)
-//        println ("sinkN = " + sinkN)
-        
-        println ("x = " + x)
-
-        sv.reduceLeft (_+_)
+            println ("x = " + x + ", sv    = " + sv)
+//            println ("sinkN = " + sinkN)
+       
+            res = sv.reduceLeft (_+_)
+        }
+        res
     }
 
     class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, times: VectorD, ani: Boolean = false)
@@ -120,9 +148,6 @@ object TrafficTest extends App
 //        val jS31 = new Junction ("juncS31", this, Sharp (0), Array (srcx2, srcy2 + 13  * dy, 20.0, 20.0))
 //        val jS32 = new Junction ("juncS32", this, Sharp (0), Array (srcx2, srcy2 + 14 * dy, 20.0, 20.0))
 
-        val time1 = 1000.0 * 1
-        val time2 = 1000.0 * 1
-
         val sig1 = new TrafficSignal ("sg1", wq1, 1000, Array (srcx + 5 * dx, srcy, 20.0, 20.0), times(0))       
 
         val sig2 = new TrafficSignal ("sg2", wq2, 1000, Array (srcx + 10 * dx, srcy, 20.0, 20.0), times(0))
@@ -151,7 +176,7 @@ object TrafficTest extends App
         val rdS13 = new Transport ("rd12", jS12,  wq3,  moveRV)
         val rdS21 = new Transport ("rd13", sig3,  jS21, moveRV)
         val rdS22 = new Transport ("rd14", jS21,  jS22, moveRV)
-        val rdS23 = new Transport ("rd15", jS22,  snk2,  moveRV)
+        val rdS23 = new Transport ("rd15", jS22,  snk2, moveRV)
         val rdS31 = new Transport ("rd16", src3,  jS31, moveRV)
         val rdS32 = new Transport ("rd17", jS31,  jS32, moveRV)
         val rdS33 = new Transport ("rd18", jS32,  wq4,  moveRV)
