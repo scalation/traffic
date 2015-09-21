@@ -40,6 +40,8 @@ class TrafficSignal (name: String, line: WaitQueue, units: Int,
     initStats (name)
     at_= (at)
 
+    var timeFactor = 1000.0             // 1 second = 1000.0
+
     var n2Release = cap
 
     var color = "red"
@@ -85,14 +87,15 @@ class TrafficSignal (name: String, line: WaitQueue, units: Int,
     { 
         releaseCount += 1
 
-        var n = (durat / 3000.0).toInt
-//        println ("duration = " + durat)
+        var n = ((durat - 4.9 * timeFactor) / (3.0 * timeFactor)).toInt
+//        println ("duration of light       = " + durat)
+//        println ("number of cars released = " + n)
         for (i <- 0 until n if ! line.isEmpty) {
 //            println ("i = " + i)
             val waitingActor = line.dequeue ()
             trace (this, " / " + name + " releases", waitingActor, director.clock)            
-            tally (5900.0)
-            waitingActor.schedule (i * 1000.0 + 4900)
+            if (i == 0) tally (5.9 * timeFactor) else tally (3.0 * timeFactor)
+            waitingActor.schedule (i * 3.0 * timeFactor + 4.9 * timeFactor)
         }
     }
  

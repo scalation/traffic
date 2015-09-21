@@ -356,7 +356,7 @@ class Model (name: String, val reps: Int = 1, animating: Boolean = true, aniRati
 //        report                      // report in terminal
         if (animating) {
             reportf                                      // report in new window
-            if (rep == 1) dgAni.animate (0, 100000)      // only animate first rep
+            if (rep == 1) dgAni.animate (0, 200000)      // only animate first rep
         } // if
     } // fini
 

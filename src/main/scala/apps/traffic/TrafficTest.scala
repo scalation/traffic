@@ -15,7 +15,7 @@ object TrafficTest extends App
     val x0 = VectorD (30000.0, 30000.0, 5000.0)
     val xs = VectorD (2000.0,  2000.0,  1000.0)
 
-    val qf = new QuadraticFit (f, 3, 7)
+/*    val qf = new QuadraticFit (f, 3, 7)
 
     qf.formGrid (x0, xs)
 
@@ -23,18 +23,18 @@ object TrafficTest extends App
     qf.fit (xx, yy)
 
     def fp (x: VectorD): Double = qf.qFormsEval (x)
-
+*/
     def fi (x: VectorI): Double = f (x.toDouble)
 
     def gi (x: VectorI): Double = g (x.toDouble)
 
-    val opt = new QuasiNewton (fp, g)
+//    val opt = new QuasiNewton (fp, g)
 //    val opt = new ConjGradient (fp, g)
-//    val opt = new IntegerLocalSearch (fi, gi, 5000)
+    val opt = new IntegerLocalSearch (fi, gi, 5000)
 //    val opt = new IntegerNLP (f, 3, g)
 //    val opt = new IntegerTabuSearch (fi, gi, 5000)
 
-    val sol = opt.solve (x0)
+    val sol = opt.solve (x0.toInt)
 
     println ("sol = " + sol)    
 
@@ -89,8 +89,8 @@ object TrafficTest extends App
         res
     }
 
-    class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, times: VectorD, ani: Boolean = false)
-          extends Model (name, animating = ani, aniRatio = 1.0 / 2.0)
+    class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, times: VectorD, ani: Boolean = false, aniR: Double = 1.0)
+          extends Model (name, animating = ani, aniRatio = aniR)
     {
         traceOff ()
 
@@ -264,8 +264,23 @@ object TrafficTest extends App
     }
 }
 
+object TrafficModelTest extends App
+{
+    import TrafficTest.TrafficModel
 
+    val x   = VectorD (30000.0, 30000.0, 5000.0)
+    val fac = 2.5
 
+    val tm = new TrafficModel ("tm", 12, Sharp (5000), Sharp (4000), x, true, 1.0 / fac)
+
+    tm.simulate ()
+    tm.complete ()
+
+    val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+    val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+       
+    println (sv.reduceLeft (_+_))    
+}
 
 
 
