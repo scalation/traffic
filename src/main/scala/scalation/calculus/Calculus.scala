@@ -84,6 +84,19 @@ object Calculus
      *  @param f  the function whose gradient is sought
      *  @param x  the point (vector) at which to estimate the gradient
      */
+    def gradient1 (f: FunctionV2S, x: VectorD): VectorD =
+    {
+        val c = new VectorD (x.dim)
+        for (i <- 0 until x.dim) c(i) = (f(x + (h, i)) - f(x)) / h
+        c
+    } // gradient1
+
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    /** Estimate the gradient of the vector-to-scalar function f at point x
+     *  returning a value for the partial derivative for each dimension of x.
+     *  @param f  the function whose gradient is sought
+     *  @param x  the point (vector) at which to estimate the gradient
+     */
     def gradient (f: FunctionV2S, x: VectorD): VectorD =
     {
         val c = new VectorD (x.dim)

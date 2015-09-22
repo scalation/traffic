@@ -52,11 +52,15 @@ class GeneticAlgorithm (f:       VectorI => Double,
 
     /** Maximum number of generations
      */
-    private val MAX_GEN = 30
+    private var MAX_GEN = 30
 
     /** Size of the population
      */
-    private val POP_SIZE = 10
+    private var POP_SIZE = 10
+
+    /** Number of allowed iterations with no improvement
+     */
+    private var NO_IMP = 10
 
     /** The current population
      */
@@ -64,7 +68,7 @@ class GeneticAlgorithm (f:       VectorI => Double,
 
     /** Random number generator for selecting an individual (represented by vector x)
      */
-    private val rIndiv = Randi (0, POP_SIZE - 1)
+    private var rIndiv = Randi (0, POP_SIZE - 1)
 
     /** Random number generator for value for an individual (value for x(k))
      */
@@ -77,6 +81,14 @@ class GeneticAlgorithm (f:       VectorI => Double,
     /** The fittest individual
      */
     private var best = (x0, fg(x0))
+
+    def setPopSize (ps: Int) { POP_SIZE = ps }
+
+    def setRIndiv (ri: Randi) { rIndiv = ri }
+
+    def setMaxGen (n: Int) { MAX_GEN = n }
+
+    def setNoImp (ni: Int) { NO_IMP = ni }
 
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /** The objective function f re-scaled by a weighted penalty, if constrained.
@@ -184,7 +196,7 @@ class GeneticAlgorithm (f:       VectorI => Double,
             } else {
                 noImprovement += 1
             } // if
-            if (noImprovement == 10) break 
+            if (noImprovement == NO_IMP) break 
         }} // for
         best
     } // solve

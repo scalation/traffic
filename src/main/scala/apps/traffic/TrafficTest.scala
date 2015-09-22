@@ -12,8 +12,11 @@ object TrafficTest extends App
 {
     var count = 0
 
+    val lower = Array [Double] (5000.0, 5000.0, 1000.0)
+    val upper = Array [Double] (120000.0, 120000.0, 20000.0)
+
     val x0 = VectorD (30000.0, 30000.0, 5000.0)
-    val xs = VectorD (2000.0,  2000.0,  1000.0)
+//    val xs = VectorD (2000.0,  2000.0,  1000.0)
 
 /*    val qf = new QuadraticFit (f, 3, 7)
 
@@ -28,13 +31,16 @@ object TrafficTest extends App
 
     def gi (x: VectorI): Double = g (x.toDouble)
 
-//    val opt = new QuasiNewton (fp, g)
+    val opt = new QuasiNewton1 (f, g)
 //    val opt = new ConjGradient (fp, g)
-    val opt = new IntegerLocalSearch (fi, gi, 5000)
+//    val opt = new IntegerLocalSearch (fi, gi, 5000)
 //    val opt = new IntegerNLP (f, 3, g)
 //    val opt = new IntegerTabuSearch (fi, gi, 5000)
+//    val opt = new GeneticAlgorithm (fi, x0)
 
-    val sol = opt.solve (x0.toInt)
+//    opt.setRIndiv (Randi (15000, 45000)
+
+    val sol = opt.solve (x0)
 
     println ("sol = " + sol)    
 
@@ -50,27 +56,41 @@ object TrafficTest extends App
         }
     }
 */
+
+
+//    for (i <- 3 to 30) f (VectorD (3000.0 * i, 3000.0 * i, 5000.0))
+
+
     def g (x: VectorD): Double = 
     {
         var sum = 0.0
-         if (x(0) < 5000.0)  sum += (x(0) - 5000.0)  * (x(0) - 5000.0)
-         if (x(0) > 50000.0) sum += (x(0) - 50000.0) * (x(0) - 50000.0)
-         if (x(1) < 5000.0)  sum += (x(1) - 5000.0)  * (x(1) - 5000.0)
-         if (x(1) > 50000.0) sum += (x(1) - 50000.0) * (x(1) - 50000.0)
-         if (x(2) < 0.0)     sum += (x(2) * x(2))
-         if (x(2) > 30000.0) sum += (x(2) - 30000.0) * (x(2) - 30000.0)
+        for (i <- 0 until x.dim) {
+            if      (x(i) < lower(i)) sum += (x(i) - lower(i)) * (x(i) - lower(i))
+            else if (x(i) > upper(i)) sum += (x(i) - upper(i)) * (x(i) - upper(i))
+        } 
         sum
     }
 
 //    f (VectorD (20000.0, 20000.0, 5000.0))
 
+
+    def proj (x: VectorD): VectorD =
+    {
+        for (i <- 0 until x.dim) {
+            if      (x(i) < lower(i)) x(i) = lower(i) + 5000.0
+            else if (x(i) > upper(i)) x(i) = upper(i) - 5000.0
+        }
+        x
+    }
+
     def f (x: VectorD): Double =
     {
+        proj (x)
         var res = 0.0
-        if (x(0) < 10.0 || x(1) < 10.0 || x(2) < 0.0) res = 1e9 
-        else {
+        
+//        else {
             count += 1
-            val tm = new TrafficModel ("tm", 30, Sharp (1000), Sharp (2000), x, false)
+            val tm = new TrafficModel ("tm", 30, Uniform (1000.0, 2000.0), Uniform (1700.0, 2300.0), x, false)
 
 //            Coroutine.startup ()
 //            println ("before")
@@ -81,11 +101,12 @@ object TrafficTest extends App
 	    val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
             val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
 
-            println ("x = " + x + ", sv    = " + sv)
+//            println ("x = " + x + ", sv    = " + sv)
 //            println ("sinkN = " + sinkN)
        
             res = sv.reduceLeft (_+_)
-        }
+//        }
+        println ("x = " + x + ", f(x) = " + res)
         res
     }
 
