@@ -109,6 +109,30 @@ case class Bernoulli (p: Double = .5, stream: Int = 0)
 
 } // Bernoulli class
 
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+/** This class generates `Bernoulli` random variates.
+ *  This discrete RV models the one trial (success is 1, failure is 0).
+ *  @see http://www.math.uah.edu/stat/bernoulli/Introduction.html
+ *  @param p       the probability of success
+ *  @param stream  the random number stream
+ */
+case class Bernoulli2 (p: Double = .5, stream: Int = 0)
+     extends Variate (stream)
+{
+    if (p < 0.0 || p > 1.0) flaw ("constructor", "parameter p must be in [0, 1]")
+    _discrete = true
+    private val q = 1.0 - p     // probability of failure
+
+    val mean = p
+
+    def pf (z: Double): Double = if (approx (z, 0.0)) q else if (approx (z, 1.0)) p else 0.0
+
+    override def pmf (k: Int): Array [Double] = Array (q, p)
+
+    def gen: Double = if (r.gen < p) 1.0 else -1.0
+
+} // Bernoulli2 class
+
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /** This class generates `Beta` random variates.

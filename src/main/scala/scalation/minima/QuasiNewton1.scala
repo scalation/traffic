@@ -52,7 +52,7 @@ class QuasiNewton1 (f: FunctionV2S, g: FunctionV2S = null,
     private var binv: MatrixD = null         // inverse of approx. Hessian matrix
     private var bfgs          = true         // use BFGS (true) or Steepest-Descent (false)
 
-    resetH (500.0)
+    resetH (5000.0)
 
     type Pair = Tuple2 [VectorD, VectorD]    // pair of vectors
 
@@ -132,8 +132,8 @@ class QuasiNewton1 (f: FunctionV2S, g: FunctionV2S = null,
     def lineSearch (x: VectorD, dir: VectorD, step: Double = STEP): Double =
     {
         def f_1D (z: Double): Double = fg(x + dir * z)    // create a 1D function        
-        val ls = if (exactLS) new GoldenSectionLS (f_1D)  // Golden Section Line Search
-                 else new WolfeLS (f_1D)                  // Wolfe line search ((c1 = .0001, c2 = .9)
+        val ls = if (exactLS) new GoldenSectionLS1 (f_1D)  // Golden Section Line Search
+                 else new WolfeLS1 (f_1D, 1000.0, 900000.0)                  // Wolfe line search ((c1 = .0001, c2 = .9)
         ls.search (step)                                  // perform a Line Search
     } // lineSearch
 
@@ -155,7 +155,7 @@ class QuasiNewton1 (f: FunctionV2S, g: FunctionV2S = null,
         binv = eye (x0.dim)                           // inverse of approx. Hessian matrix
 //      b    = eye (x0.dim)                           // approx. Hessian matrix (either use b or binv)
 
-        for (k <- 1 to MAX_ITER if x._2.normSq > TOL) {
+        for (k <- 1 to MAX_ITER if x._2.normSq > toler) {
             s  = dir * lineSearch (x._1, dir)         // update step vector
             xx = (x._1 + s, gradient1 (fg, x._1 + s))  // compute the next point
             if (bfgs) {
