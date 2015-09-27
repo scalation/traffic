@@ -156,7 +156,8 @@ class QuasiNewton1 (f: FunctionV2S, g: FunctionV2S = null,
 //      b    = eye (x0.dim)                           // approx. Hessian matrix (either use b or binv)
 
         for (k <- 1 to MAX_ITER if x._2.normSq > toler) {
-            s  = dir * lineSearch (x._1, dir)         // update step vector
+//            s  = dir * lineSearch (x._1, dir)         // update step vector
+            s  = dir * 10.0 / k
             xx = (x._1 + s, gradient1 (fg, x._1 + s))  // compute the next point
             if (bfgs) {
                 dir = -(binv * xx._2)                 // next search direction using BFGS and 'binv'

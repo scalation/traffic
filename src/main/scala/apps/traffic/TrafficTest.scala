@@ -31,18 +31,19 @@ object TrafficTest extends App
 
     def gi (x: VectorI): Double = g (x.toDouble)
 
-//    val opt = new QuasiNewton1 (f, g)
+    val opt = new QuasiNewton1 (f, g)
 //    val opt = new ConjGradient (fp, g)
 //    val opt = new IntegerLocalSearch (fi, gi, 5000)
 //    val opt = new IntegerNLP (f, 3, g)
 //    val opt = new IntegerTabuSearch (fi, gi, 5000)
 //    val opt = new GeneticAlgorithm (fi, x0)
-     val opt = new SPSA (f)
+//     val opt = new SPSA (f)
 
 
 //    opt.setRIndiv (Randi (15000, 45000)
 
-    val sol = opt.solve (x0, toler = 1.0)
+//    val sol = opt.solve (x0, toler = 1.0)
+    val sol = opt.solve (x0)
 
     println ("sol = " + sol)    
 

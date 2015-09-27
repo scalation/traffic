@@ -34,14 +34,15 @@ class SPSA (f: FunctionV2S)
 
     private val a = 0.10665
 
-    private val c = 1e-6
+    private val c = 1000.0
     
     def lineSearch (x: VectorD, dir: VectorD, step: Double = STEP): Double = 0.0  
 
     def solve (x0: VectorD, step: Double = STEP, toler: Double = EPSILON): VectorD =
     {
         println ("x0 = " + x0) 
-        var ak = pow (a / (A + 1), alpha)
+//        var ak = pow (a / (A + 1), alpha)
+        var ak = 1000.0
         var ck = c 
         var grad = gradEst (f, x0, ck)
         if (DEBUG) println ("Gradient Estimation = " + grad)
@@ -50,10 +51,12 @@ class SPSA (f: FunctionV2S)
 
         for (k <- 1 to 500 if !terminate (x, xx)) {
             x = xx
-            ak = pow (a / (A + k + 1), alpha)
-            ck = pow (c / (k + 1), gamma)
+//            ak = pow (a / (A + k + 1), alpha)
+            ak = 1000.0 / k
+//            ck = pow (c / (k + 1), gamma)
+
             grad = gradEst (f, x, ck)
-            if (DEBUG) println ("Gradient Esimation  = " + grad)
+//            if (DEBUG) println ("Gradient Esimation  = " + grad)
             xx = x - grad * ak
             if (DEBUG) println ("solve: (k = " + k + ") move from " + x + " to " + xx
                               + " where f(xx._1) = " + f(xx))
@@ -71,7 +74,7 @@ class SPSA (f: FunctionV2S)
             if (diff > max) max = diff
         }
 //        println ("max = " + max)
-        if (max < 1e-3) term = true
+        if (max < 1.0) term = true
         term
     }  
 
