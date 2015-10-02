@@ -766,6 +766,17 @@ object VectorD
     } // apply
 
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    /** Create a `VectorD` from a sequence of Doubles.
+     *  @param xs  the sequence of the Double numbers
+     */
+    def apply (xs: Seq [Double]): VectorD =
+    {
+        val c = new VectorD (xs.length)
+        for (i <- 0 until c.dim) c.v(i) = xs(i)
+        c
+    } // apply
+
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /** Create a VectorD from an array of Strings.
      *  @param xs  the array of the Strings
      */

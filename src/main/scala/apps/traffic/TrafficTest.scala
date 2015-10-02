@@ -1,6 +1,8 @@
 
 package apps.traffic
 
+import java.util.Scanner
+
 import scalation.linalgebra._
 import scalation.metamodel.QuadraticFit
 import scalation.minima._
@@ -13,9 +15,9 @@ object TrafficTest extends App
     var count = 0
 
     val lower = Array [Double] (5000.0, 5000.0, 1000.0)
-    val upper = Array [Double] (120000.0, 120000.0, 20000.0)
+    val upper = Array [Double] (200000.0, 200000.0, 60000.0)
 
-    val x0 = VectorD (30000.0, 30000.0, 5000.0)
+    val x0 = VectorD (33000.0, 33000.0, 11000.0)
 //    val xs = VectorD (2000.0,  2000.0,  1000.0)
 
 /*    val qf = new QuadraticFit (f, 3, 7)
@@ -31,21 +33,47 @@ object TrafficTest extends App
 
     def gi (x: VectorI): Double = g (x.toDouble)
 
-    val opt = new QuasiNewton1 (f, g)
+//    val opt = new QuasiNewton1 (f, g)
 //    val opt = new ConjGradient (fp, g)
 //    val opt = new IntegerLocalSearch (fi, gi, 5000)
 //    val opt = new IntegerNLP (f, 3, g)
 //    val opt = new IntegerTabuSearch (fi, gi, 5000)
-//    val opt = new GeneticAlgorithm (fi, x0)
-//     val opt = new SPSA (f)
 
+
+    var numCars = 100
+
+
+    val opt = new TrafficSPSA (f)
+    val sol = opt.solve (Array (10,10,5), Array (200,200,60))
+    println ("sol = " + sol)
+
+/*
+    val scan = new Scanner (System.in)
+
+    var done = false
+    var i = 1
+    while (! done) {
+
+//        val opt = new TrafficGA (fi, 3) 
+        val opt = new IntegerTabuSearch (fi, gi, 5000)
+
+        numCars = 100 * i
+        val t1 = System.nanoTime ()
+//        val sol = opt.solve (Array (10,10,5), Array (200,200,60))
+        val sol = opt.solve (x0.toInt)
+        val t2 = System.nanoTime ()
+        println ("sol = " + sol + ", time = " + (t2 - t1))    
+        println ("Continue? (y/n)")
+        val input = scan.next ()
+        if (input == "n") done = true 
+        i += 1
+    }
+*/
+//    val sol = opt.solve (Array (10,10,5), Array (60,60,20))
 
 //    opt.setRIndiv (Randi (15000, 45000)
 
 //    val sol = opt.solve (x0, toler = 1.0)
-    val sol = opt.solve (x0)
-
-    println ("sol = " + sol)    
 
 /*  
     var count = 0
@@ -93,7 +121,7 @@ object TrafficTest extends App
         
 //        else {
             count += 1
-            val tm = new TrafficModel ("tm", 30, Uniform (1000.0, 2000.0), Uniform (1700.0, 2300.0), x, false)
+            val tm = new TrafficModel ("tm", numCars, Uniform (1000.0, 2000.0), Uniform (1700.0, 2300.0), x, false)
 
 //            Coroutine.startup ()
 //            println ("before")
@@ -108,9 +136,12 @@ object TrafficTest extends App
 //            println ("sinkN = " + sinkN)
        
             res = sv.reduceLeft (_+_)
+
+//            println ("x = " + x + ", avg queue length = " + tm.avgQueueLength)
 //        }
 //        println ("x = " + x + ", f(x) = " + res)
         res
+//          tm.avgQueueLength
     }
 
     class TrafficModel (name: String, nArrivals: Int, iArrivalRV: Variate, moveRV: Variate, times: VectorD, ani: Boolean = false, aniR: Double = 1.0)
@@ -140,11 +171,11 @@ object TrafficTest extends App
                     else Array ("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
                                 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
-
+        
 
         val src  = new Source   ("sc1", this, Car, 0, nArrivals, iArrivalRV, (srcx.toDouble, srcy.toDouble))
-        val src2 = new Source   ("sc2", this, Car, 1, nArrivals, iArrivalRV, (srcx2.toDouble, srcy2.toDouble))
-        val src3 = new Source   ("sc3", this, Car, 2, nArrivals, iArrivalRV, (srcx3.toDouble, srcy3.toDouble))
+        val src2 = new Source   ("sc2", this, Car, 1, nArrivals / 2, Rescale (iArrivalRV), (srcx2.toDouble, srcy2.toDouble))
+        val src3 = new Source   ("sc3", this, Car, 2, nArrivals / 2, Rescale (iArrivalRV), (srcx3.toDouble, srcy3.toDouble))
         val wq1 =     WaitQueue ("wq1", (srcx + 3 * dx, srcy))
         val wq2 =     WaitQueue ("wq2", (srcx + 8 * dx, srcy))
         val wq3 =     WaitQueue ("wq3", (srcx2, srcy2 + 3 * dy))
@@ -232,6 +263,8 @@ object TrafficTest extends App
                                 rdE11, rdE12, rdE13, rdE21, rdE22, rdE23, rdE31, rdE32, rdE33,
                                 rdS11, rdS12, rdS13, rdS21, rdS22, rdS23, rdS31, rdS32, rdS33, rdS41, rdS42, rdS43)
 
+        def avgQueueLength: Double = sc.avgQueueLength
+
         case class Car () extends SimActor ("c", this)
         {
             def act ()
@@ -302,11 +335,22 @@ object TrafficModelTest extends App
 
     val sv      = tm.statV.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
     val sinkN   = tm.statN.filter{ case (key, value) => key contains "sk"}.map { case (key, value) => value(0) }
+
+//    val sv      = tm.statV.filter( _._1 contains "sk").map ( _._2(0) )
        
     println (sv.reduceLeft (_+_))    
 }
 
+object TrafficModelTest2 extends App 
+{
+    import TrafficTest.TrafficModel
 
+    val x   = VectorD (30000.0, 30000.0, 5000.0)
+    val tm = new TrafficModel ("tm", 12, Sharp (5000), Sharp (4000), x, true)
+
+    tm.simulate ()
+    tm.complete ()
+}
 
 
 

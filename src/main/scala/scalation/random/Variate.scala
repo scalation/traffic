@@ -21,6 +21,7 @@ import scalation.math.Combinatorics.{betaF, choose, fac, gammaF}
 //import scalation.math.DoubleWithExp._
 import scalation.math._
 import scalation.math.ExtremeD.approx
+import scalation.stat.Histogram
 import scalation.util.Error
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -47,6 +48,11 @@ abstract class Variate (stream: Int = 0)
     /** Determine whether the distribution is discrete or continuous.
      */
     def discrete: Boolean = _discrete
+
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    /** Get the stream for this variate.
+     */
+    def getStream: Int = stream
 
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     /** Pre-compute the mean for the particular distribution.
@@ -83,6 +89,20 @@ abstract class Variate (stream: Int = 0)
     } // igen
 
 } // Variate class
+
+
+case class Rescale (rv: Variate, scale: Double = 2.0, shift: Double = 0.0) 
+     extends Variate (rv.getStream)
+{
+    val mean = scale * rv.mean + shift
+
+    def pf (z: Double): Double = 
+    {
+        throw new NoSuchMethodException ("Rescale does not support pf")
+    }
+
+    def gen: Double = scale * rv.gen + shift
+}
 
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1286,4 +1306,26 @@ object VariateTest extends App
     println ("trinom = " + trinom.pmf(0).deep)
 
 } // VariateTest object
+
+object RescaleTest extends App
+{
+    val rand = Normal ()
+    val resc = Rescale (rand, 10.0, 5.0)
+    val y = VectorD (for (i <- 0 until 1000) yield rand.gen)
+    val x = VectorD (for (i <- 0 until 1000) yield resc.gen)
+        
+    new Histogram (x, 20)
+    new Histogram (y, 20)
+   
+}
+
+
+
+
+
+
+
+
+
+
 
